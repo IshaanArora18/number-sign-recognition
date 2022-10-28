@@ -4,7 +4,7 @@ from keras.layers import Convolution2D
 from keras.layers import MaxPooling2D
 from keras.layers import Flatten
 from keras.layers import Dense
-
+import numpy as np
 # Step 1 - Building the CNN
 
 # Initializing the CNN
@@ -23,7 +23,7 @@ classifier.add(Flatten())
 
 # Adding a fully connected layer
 classifier.add(Dense(units=128, activation='relu'))
-classifier.add(Dense(units=6, activation='softmax')) # softmax for more than 2
+classifier.add(Dense(units=10, activation='softmax')) # softmax for more than 2
 
 # Compiling the CNN
 classifier.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy']) # categorical_crossentropy for more than 2
@@ -31,7 +31,6 @@ classifier.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['
 
 # Step 2 - Preparing the train/test data and training the model
 
-# Code copied from - https://keras.io/preprocessing/image/
 from keras.preprocessing.image import ImageDataGenerator
 
 train_datagen = ImageDataGenerator(
@@ -41,24 +40,24 @@ train_datagen = ImageDataGenerator(
         horizontal_flip=True)
 
 test_datagen = ImageDataGenerator(rescale=1./255)
-
+# loading the training dataset
 training_set = train_datagen.flow_from_directory('data/train',
                                                  target_size=(64, 64),
-                                                 batch_size=5,
+                                                 batch_size=32,
                                                  color_mode='grayscale',
                                                  class_mode='categorical')
-
+# loading the test dataset
 test_set = test_datagen.flow_from_directory('data/test',
                                             target_size=(64, 64),
-                                            batch_size=5,
+                                            batch_size=32,
                                             color_mode='grayscale',
                                             class_mode='categorical') 
-classifier.fit_generator(
+classifier.fit(
         training_set,
-        steps_per_epoch=600, # No of images in training set
-        epochs=10,
+        steps_per_epoch=np.ceil(training_set.n/training_set.batch_size), # No of images in training set
+        epochs=100,
         validation_data=test_set,
-        validation_steps=30)# No of images in test set
+        validation_steps=np.ceil(test_set.n/test_set.batch_size))# No of images in test set
 
 
 # Saving the model

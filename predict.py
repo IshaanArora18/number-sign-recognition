@@ -1,8 +1,6 @@
-import numpy as np
 from keras.models import model_from_json
 import operator
 import cv2
-import sys, os
 
 # Loading the model
 json_file = open("model-bw.json", "r")
@@ -11,12 +9,12 @@ json_file.close()
 loaded_model = model_from_json(model_json)
 # load weights into new model
 loaded_model.load_weights("model-bw.h5")
-print("Loaded model from disk")
-
+print("...Loading the model from the disk")
+print("Capturing the live video....")
 cap = cv2.VideoCapture(0)
 
-# Category dictionary
-categories = {0: 'ZERO', 1: 'ONE', 2: 'TWO', 3: 'THREE', 4: 'FOUR', 5: 'FIVE'}
+# creating the labels that we need to identify
+categories = {0: 'ZERO', 1: 'ONE', 2: 'TWO', 3: 'THREE', 4: 'FOUR', 5: 'FIVE',6:'SIX',7:'SEVEN',8:'EIGHT',9:'NINE'}
 
 while True:
     _, frame = cap.read()
@@ -47,7 +45,11 @@ while True:
                   'TWO': result[0][2],
                   'THREE': result[0][3],
                   'FOUR': result[0][4],
-                  'FIVE': result[0][5]}
+                  'FIVE': result[0][5],
+                  'SIX': result[0][6],
+                  'SEVEN': result[0][7],
+                  'EIGHT': result[0][8],
+                  'NINE': result[0][9]}
     # Sorting based on top prediction
     prediction = sorted(prediction.items(), key=operator.itemgetter(1), reverse=True)
     
@@ -58,7 +60,7 @@ while True:
     interrupt = cv2.waitKey(10)
     if interrupt & 0xFF == 27: # esc key
         break
-        
- 
+
+print("Process ended ....!")
 cap.release()
 cv2.destroyAllWindows()
